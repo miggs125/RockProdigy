@@ -23,7 +23,7 @@ export default class Timer extends Component {
                     onPress={this.start} />
                 <Button
                     title="reset"
-                    onPress={this.reset}/>
+                    onPress={this.reset} />
             </View>
         )
     }
@@ -36,7 +36,7 @@ export default class Timer extends Component {
             });
         } else {
             this.setState({
-                count:  'STOP'
+                count: 'STOP'
             });
             this.timer = setInterval(() => {
                 this.setState({
@@ -59,20 +59,17 @@ export default class Timer extends Component {
         });
     }
 
-    countDown() {
-        if (this.state.counting) {
-            this.theInterval = setInterval(() => {
-                this.setState(prevState => ({
-                    count: prevState.count - 1,
-                })
-                );
-            });
-        } else clearTimeout(this.theInterval)
-    }
-
     componentDidUpdate() {
-        if (this.state.count === 0){
-            
+        if (this.state.time === 0) {
+            clearTimeout(this.timer);
+
+            if (this.state.counting) {
+                this.timer = setInterval( () => {
+                    this.setState({
+                        time: this.state.time + 1,
+                    })
+                }, 1000);
+            }
         }
     }
 
