@@ -8,7 +8,7 @@
 
 import React, { Component } from 'react';
 import { AppRegistry, StyleSheet, Text, View, Button } from 'react-native';
-import Timer from './components/timer/timer'
+import Timer from './components/timer/Timer'
 
 type Props = {};
 export default class App extends Component<Props> {
