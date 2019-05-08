@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native'
 
-const RippleButton = ({ onPress, buttonText, buttonStyle, textStyle,}) => {
+const CustomButton = ({ onPress, buttonText, buttonStyle, textStyle,}) => {
     return (
         <TouchableOpacity
             style={buttonStyle}
@@ -25,4 +25,4 @@ const RippleButton = ({ onPress, buttonText, buttonStyle, textStyle,}) => {
     )
 }
 
-export default RippleButton;
+export default CustomButton;

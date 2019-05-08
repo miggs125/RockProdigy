@@ -7,10 +7,12 @@ import {
     Text,
     View,
     Animated,
+    TextInput
 } from 'react-native';
 
-import RippleButton from '../customButton/RippleButton.js'
-import { typeAlias } from '@babel/types';
+import CustomButton from '../customButton/CustomButton.js'
+import Countdown from './views/Countdown.js'
+import TimerSettings from './views/TimerSettings'
 
 
 export default class Timer extends Component {
@@ -19,42 +21,33 @@ export default class Timer extends Component {
         this.state = {
             buttonText: 'START',
             counting: false,
-            workInterval: 10,
-            restInterval: 5,
             count: 0,
             display: "00 : 00",
             work: false,
             countStarted: false,
+            configure: false,
         }
         this.start = this.start.bind(this);
         this.reset = this.reset.bind(this);
-        this.workInterval = 10;
-        this.restInterval = 10;
+        this.workInterval = 8;
+        this.restInterval = 5;
     }
 
     render() {
-        return (
-            <View style={style.container}>
-                <View style={style.display}>
-                    <Text style={style.displayText}>{this.state.display}</Text>
-                </View>
+        if (true) {
+            return <TimerSettings/>
+        } else {
+            return <Countdown
+                onPressStart={this.start}
+                onPressReset={this.reset}
+                text={
+                    {
+                        button: this.state.buttonText,
+                        display: this.state.display,
+                    }}
+            />
 
-                <View style={style.buttonsInterface}>
-                    <RippleButton
-                        onPress={this.start}
-                        buttonText={this.state.buttonText}
-                        buttonStyle={style.buttonStart}
-                        textStyle={style.mainButtonText}
-                    />
-                    <RippleButton
-                        onPress={this.reset}
-                        buttonText='RESET'
-                        buttonStyle={style.buttonReset}
-                        textStyle={style.resetButtonText}
-                    />
-                </View>
-            </View>
-        )
+        }
     }
 
     static formatDisplay(interval) {
@@ -84,96 +77,131 @@ export default class Timer extends Component {
 
     start() {
 
-        // clear timeout if counting
         if (this.state.counting) {
             clearTimeout(this.timer);
             this.setState({
                 buttonText: 'START',
+                counting: !this.state.counting,
             });
         } else {
             this.setState({
                 buttonText: 'STOP',
+                counting: !this.state.counting
             });
 
             // set count to proper work or rest interval
-            if (!this.state.countStarted)
-                if (this.state.work)
-                    this.setState({
-                        count: this.workInterval
-                    });
-                else
-                    this.setState({
-                        count: this.restInterval
-                    });
+            if (!this.state.countStarted) {
+                this.setState({
+                    work: true,
+                    count: this.workInterval,
+                    countStarted: !this.state.countStarted
+                });
+            }
 
             this.timer = setInterval(() => {
-
                 this.setState({
                     count: this.state.count - 1,
-                    counting: !this.state.counting,
                     display: Timer.formatDisplay(this.state.count)
                 });
             }, 1000);
         }
-
-        this.setState({
-            counting: !this.state.counting,
-        });
     }
 
     reset() {
         clearInterval(this.timer);
         this.setState({
-            count: 0,
+            buttonText: 'START',
+            count: this.workInterval,
             counting: false,
-            workInterval: 10,
-            restInterval: 5,
-            display: Timer.formatDisplay(0)
+            display: Timer.formatDisplay(this.workInterval)
         });
     }
 
     componentDidUpdate() {
-        if (this.state.count === 0 && this.state.counting) {
+        if (this.state.count === 0 & this.state.counting) {
             clearTimeout(this.timer);
-            
+
             if (this.state.work) {
                 this.setState({
                     work: !this.state.work,
-
+                    count: this.restInterval,
+                });
+            } else {
+                this.setState({
+                    work: !this.state.work,
+                    count: this.workInterval,
                 });
             }
 
-            if (this.state.counting) {
-                this.timer = setInterval(() => {
-                    this.setState({
-                        seconds: this.state.seconds + 1,
-                        display: this.formatDisplay(this.state.seconds),
-                    })
-                }, 1000);
-            }
+            this.timer = setInterval(() => {
+                this.setState({
+                    count: this.state.count - 1,
+                    display: Timer.formatDisplay(this.state.count)
+                });
+            }, 1000);
         }
-
     }
-
 
     componentWillUnmount() {
-        clearInterval(this.theInterval)
+        clearInterval(this.timer)
     }
 
-    styleButton() {
-        return {
+    componentWillMount() {
+        this.setState({
+            display: Timer.formatDisplay(this.workInterval)
+        });
 
-        }
     }
+
 }
+
+
+// const configureTimerDisplay = () => {
+
+//     return <View>
+//         <Text>
+//             Timer Settings
+//         </Text>
+//     </View>
+
+// }
+
+
+// ============ code replaced by CountDownDisplay component in timer
+// const countdownDisplay = (onPress, text, style) => {
+//     return <View style={style.container}>
+//         <View style={style.display}>
+//             <Text
+//                 style={style.displayText}
+//                 //editable={!this.state.counting}
+//             >{text.display}</Text>
+//         </View>
+
+//         <View style={style.buttonsInterface}>
+//             <CustomButton
+//                 onPress={onPress.start}
+//                 buttonText={text.buttonText}
+//                 buttonStyle={style.buttonStart}
+//                 textStyle={style.mainButtonText}
+//             />
+//             <CustomButton
+//                 onPress={onPress.reset}
+//                 buttonText='RESET'
+//                 buttonStyle={style.buttonReset}
+//                 textStyle={style.resetButtonText}
+//             />
+//         </View>
+//     </View>;
+// }
 
 const style = StyleSheet.create({
     container: {
-        // flex: 1,
+        flex: 1,
         flexDirection: 'column',
-        backgroundColor: 'powderblue',
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height * 0.25,
+        borderStyle: 'solid',
+        borderWidth: 1,
     },
     buttonsContainer: {
         height: 100,
@@ -197,7 +225,6 @@ const style = StyleSheet.create({
     },
     display: {
         flex: 3,
-        backgroundColor: 'red',
         height: '100%',
         width: '100%',
         justifyContent: 'center',
@@ -225,9 +252,9 @@ const style = StyleSheet.create({
     },
     displayText: {
         fontSize: 50,
-        backgroundColor: 'white',
         justifyContent: 'center',
         textAlign: 'center',
         width: '100%',
+        color: 'black'
     }
 });
